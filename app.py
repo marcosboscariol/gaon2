@@ -17,7 +17,7 @@ os.environ["SERPER_API_KEY"] = '52d11d82675319c2143361c8584d7af496e78cf4'
 # Modelo LLM
 llm = ChatCohere(temperature=0.9)
 
-st.title('Teste')
+st.title('Gaon Quality Agent')
 
 teoria_matriz_ce = '''
 O que é Matriz de Causa e Efeito?
