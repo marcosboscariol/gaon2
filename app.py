@@ -2,7 +2,7 @@ import streamlit as st
 import os
 # from crewai_tools import FileReadTool
 from langchain_cohere import ChatCohere
-# from crewai import Agent, Task, Crew
+from crewai import Agent, Task, Crew
 import pandas as pd
 from dotenv import load_dotenv
 import sys
