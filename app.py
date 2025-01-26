@@ -2,12 +2,12 @@ import streamlit as st
 import os
 # from crewai_tools import FileReadTool
 from langchain_cohere import ChatCohere
-from crewai import Agent, Task, Crew
+from crewai import Agent, Task, Crew, LLM
 import pandas as pd
 from dotenv import load_dotenv
 import sys
-__import__('pysqlite3')
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+# __import__('pysqlite3')
+# sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 
 # Configuração de variáveis de ambiente
@@ -15,7 +15,10 @@ os.environ["COHERE_API_KEY"] = 'Sid93B0NN5Vc3luKBnbaD07IYTj93V1HGix5nDEe'
 os.environ["SERPER_API_KEY"] = '52d11d82675319c2143361c8584d7af496e78cf4'
 
 # Modelo LLM
-llm = ChatCohere(temperature=0.9)
+# llm = ChatCohere(temperature=0.9)
+
+llm = LLM(model="groq/llama-3.3-70b-versatile",
+          api_key='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')
 
 st.title('Gaon Quality Agent')
 
@@ -91,6 +94,51 @@ with st.expander('Clique para entender o conceito do Diagrama de Ishikawa'):
     # Mostra a mensagem armazenada no session_state
     if st.session_state.mensagem_ishikawa:
         st.markdown(st.session_state.mensagem_ishikawa)
+
+with st.expander('Clique aqui para solicitar ajuda em identificar os problemas'):
+    agente_ishikawa_identificador_problemas = Agent(
+        role='Consultor de Qualidade',
+        goal='Gerar sugestões de problemas para preencher o Diagrama de Ishikawa',
+        backstory=f"""
+        Você é um consultor de qualidade focado na ferramenta Ishikawa
+        Seu papel é gerar sugestões de possíveis problemas para o usuario preencher o Diagrama de Ishikawa
+        O usuario informou que o ramo de trabalho dele é {ramo}, o setor com o problema a ser resolvido é o {setor} e o problema específico é {dor}
+        """,
+        verbose=True,
+        llm=llm
+    )
+
+    identificar_problemas_ishikawa = Task(
+        description=(
+            f"""
+        gerar sugestões de possíveis problemas para o usuario preencher o Diagrama de Ishikawa dentro das categorias da ferramenta Ishikawa, Método, Máquinas, Materiais,  Mão de obra, Medição e Meio ambiente
+        O usuario informou que o ramo de trabalho dele é {ramo}, o setor com o problema a ser resolvido é o {setor} e o problema específico é {dor}
+        """
+        ),
+        agent=agente_ishikawa_identificador_problemas,
+        expected_output="Sugestões de Problemas para o usuário preencher o Diagrama de Ishikawa",
+        llm=llm
+    )
+
+    # Equipe
+    equipe_identificar_problemas_ishikawa = Crew(
+        agents=[agente_ishikawa_identificador_problemas],
+        tasks=[identificar_problemas_ishikawa],
+        verbose=True
+    )
+
+    # Inicializa a mensagem apenas se ainda não estiver no session_state
+    if "problemas_ishikawa" not in st.session_state:
+        st.session_state.problemas_ishikawa = None
+
+    # Botão para solicitar ajuda
+    if st.button('Gerar sugestão de problemas para o Diagrama de Ishikawa'):
+        # Simula a chamada de equipe_introducao_ishikawa.kickoff()
+        st.session_state.problemas_ishikawa = equipe_identificar_problemas_ishikawa.kickoff()
+
+    # Mostra a mensagem armazenada no session_state
+    if st.session_state.problemas_ishikawa:
+        st.markdown(st.session_state.problemas_ishikawa)
 
 
 with st.expander('Clique para solicitar ajuda para classificar os erros'):
