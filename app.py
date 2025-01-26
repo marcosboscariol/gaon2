@@ -6,8 +6,8 @@ from crewai import Agent, Task, Crew, LLM
 import pandas as pd
 from dotenv import load_dotenv
 import sys
-# __import__('pysqlite3')
-# sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+__import__('pysqlite3')
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 
 # Configuração de variáveis de ambiente
